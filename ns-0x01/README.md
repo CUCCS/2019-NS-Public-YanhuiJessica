@@ -2,7 +2,7 @@
 ## 实验要求
 - [x] [虚拟硬盘配置成多重加载](#虚拟硬盘多重加载)
 - [x] 网络拓扑图与搭建
-- [x] 网络连通性测试(除Victim-Kali-1)
+- [x] 网络连通性测试
   - [x] 靶机可以**直接**访问攻击者主机
     - 靶机与攻击者主机不在同一个网段, 访问显然需要通过网关
   - [x] 攻击者主机无法**直接**访问靶机
@@ -27,12 +27,15 @@
 - 刚开始看到内网模式的WinXP虚拟机有IPv4地址而且和Debian网关(除了基本网卡其他都没有配置)可以互通, 就以为内网模式的Kali也应该有, 然而没有:<br>
   ![没有IPv4地址](img/NoIPv4.png)
   以为是~~内网模式Kali的网卡配置问题或者是因为其他原因IPv4地址无法显示~~, 实际上内网模式需要手动将**虚拟网卡配置为使用静态IP地址**, 或者使用DHCP服务器(可以使用Debian的dnsmasq, 参考[官方文档](https://wiki.debian.org/dnsmasq#Basic_DHCP_Setup)的操作没有成功, 仅收到了DHCP REQUEST的广播包, 并没有发出DHCP OFFER)来分配IP地址
+- 由于网关的配置文件, 实际上并没有那么复杂, 只要按照规定的顺序配置网关的网卡, 就可以为内网靶机自动分配IP地址
 ### 各虚拟机网络配置
 #### 靶机
 ##### Victim-XP-1
-![内网1靶机XP](img/victim-xp-1-network.png)
+<!-- ![内网1靶机XP](img/victim-xp-1-network.png) -->
+![内网1靶机XP](img/victim-xp-1-network2.png)
 ##### Victim-Kali-1
-![内网1靶机Kali](img/victim-kali-1-network.png)
+<!-- ![内网1靶机Kali](img/victim-kali-1-network.png) -->
+![内网1靶机Kali](img/victim-kali-1-network2.png)
 ##### Victim-XP-2
 ![内网2靶机XP](img/victim-xp-2-network.png)
 #### 攻击者主机
@@ -41,9 +44,12 @@
 ![攻击者主机Kali](img/attacker-kali-network.png)
 #### 网关
 ##### Gateway-Debian
+- 最好不要使用自己添加的Host-Only网卡, 选择已有的Host-Only网卡, 否则会出现以下问题:<br>
+  ![VERR_INTNET_FLT_IF_NOT_FOUND](img/hostOnlyError.png)
+  <br>尽管可以使用管理员权限重新安装虚拟机来获得正确启动, 但是查看该网卡的IP地址仍然是不正确的。
 ![网关Debian](img/gateway-debian-network.png)
 ### 配置端口转发
-- 重启Debian后查看iptables发现内网2的靶机竟然已经自动加入了！查看该靶机发现所有网络配置都是自动获得的, 但是内网1的靶机却不能做到。 查看/etc/network/interfaces配置文件发现两者的规则是不同的:<br>
+<!-- - 重启Debian后查看iptables发现内网2的靶机竟然已经自动加入了！查看该靶机发现所有网络配置都是自动获得的, 但是内网1的靶机却不能做到。 查看/etc/network/interfaces配置文件发现两者的规则是不同的:<br>
   ![两个内网不同规则](img/difRule.png)<br>
 - 可以直接为内网1的靶机配置DNS服务器为常用DNS服务器, 如114.114.114.114。由于与内网1不在一个网段, 实际上还是需要经过网关
 - 使用iptables设置端口转发
@@ -55,12 +61,15 @@
   iptables-restore < iptables.rules #将规则写回iptables
   ```
 - iptables.rules配置如下:<br>
-  ![iptables.rules](img/iptablesRules.png)
+  ![iptables.rules](img/iptablesRules.png) -->
+- 查看/etc/network/interfaces发现enp0s9和enp0s10都已经有配置了:<br>
+  ![interfaces配置](img/network-interfaces.png)
+- 由于硬编码, 网卡的类型与顺序非常重要, 如果网关不是四张网卡并且顺序依次为: NAT网络、仅主机网络、内部网络1、内部网络2, 那么就需要修改配置文件。
 ### 连通性测试
 #### Victim-XP-1
 ![Victim-XP-1已连通](img/victim-XP-1-vis.png)
 #### Victim-Kali-1
-- 暂未实现
+![Victim-Kali-1已连通](img/victim-Kali-1-vis.png)
 #### Victim-XP-2
 ![Victim-XP-2已连通](img/victim-XP-2-vis.png)
 #### Attacker-Kali
@@ -69,16 +78,15 @@
 - ![ping和ARP表](img/GWvis.png)
 - ![网关可上网](img/gateway-Debian-vis.png)
 ## 其它问题
-### 使用新添加的Host-Only网卡无法启动虚拟机
-![VERR_INTNET_FLT_IF_NOT_FOUND](img/hostOnlyError.png)
-- 解决方法: 以管理员身份重新安装Oracle VM VirtualBox
 ### Debian: 'arp: command not found'
 尝试使用apt-get安装arp包, 发现不能定位包, update之后也没有用, 使用whereis可以找到arp.7.gz。
 - 解决方法: 安装net-tools包, 包里包含arp、ifconfig等命令
 ### Debian: Host-Only网络
-- 为虚拟机添加Host-Only网络的网卡后, 在虚拟机内查看该网卡对应的IP地址, 不在网卡DHCP服务器对应的网段中, 导致无法使用ssh连接虚拟机
-- 解决方法: 修改虚拟机该网卡对应的IP地址使其属于有效网段(永久修改需要修改配置文件), 或修改DHCP服务器对应的网段
+- 为网关虚拟机添加Host-Only网络的网卡后, 在虚拟机内查看该网卡对应的IP地址, 不在网卡DHCP服务器对应的网段中, 导致无法使用ssh连接虚拟机
+- 解决方法: ~~修改虚拟机该网卡对应的IP地址使其属于有效网段(永久修改需要修改配置文件), 或修改DHCP服务器对应的网段~~这是由于配置文件硬编码导致的问题, 应该修改网关网卡的顺序
 ## 实验总结
+### 注意
+- 以169.254开头的IP地址是link-local address, 是当DHCP分配失败时自动生成的
 ### 各个模式的区别
 Mode|VM->Host|VM<-Host|VM1<->VM2|VM->Net/LAN|VM<-Net/LAN
 -|-|-|-|-|-
