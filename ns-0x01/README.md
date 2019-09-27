@@ -96,7 +96,7 @@ NAT service|+|Port forward|+|+|Port forward
   -A POSTROUTING -o enp0s3 -s 172.16.111.0/24 -j MASQUERADE #添加到COMMIT前
   iptables-restore < iptables.rules #将规则写回iptables
   ```
-- `/etc/network/interfaces`中使用echo的方式开启IPv4端口转发, 也可以将`/etc/sysctl.conf`文件中`# net.ipv4.ip_forward=1`的注释去除再重启, 效果也是一样的。
+- 配置文件`/etc/network/interfaces`中使用`echo 1 > /proc/sys/net/ipv4/ip_forward`的方式开启IPv4端口转发, 也可以将`/etc/sysctl.conf`文件中`# net.ipv4.ip_forward=1`的注释去除再重启, 效果是一样的。
 ## 参考资料
 - [基于VirtualBox的网络攻防基础环境搭建 - 林淑琪](https://github.com/CUCCS/2018-NS-Public-jckling/blob/master/ns-0x01/%E5%9F%BA%E4%BA%8EVirtualBox%E7%9A%84%E7%BD%91%E7%BB%9C%E6%94%BB%E9%98%B2%E5%9F%BA%E7%A1%80%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA.md)
 - [Windows 10 - Host Only Adapters](https://forums.virtualbox.org/viewtopic.php?f=6&t=94277)
