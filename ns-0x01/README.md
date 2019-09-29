@@ -51,7 +51,7 @@
 ### 配置端口转发
 <!-- - 重启Debian后查看iptables发现内网2的靶机竟然已经自动加入了！查看该靶机发现所有网络配置都是自动获得的, 但是内网1的靶机却不能做到。 查看/etc/network/interfaces配置文件发现两者的规则是不同的:<br>
   ![两个内网不同规则](img/difRule.png)<br>
-- 如果没有在网关上配置 DNS 服务器，Internal 模式主机的 DNS 解需要外部 DNS 服务器。网关只要能实现 DNS 流量的正常 NAT 即可确保 Internal 模式主机的 DNS 解析。
+- 如果没有在网关上配置 DNS 服务器，Internal Network模式主机的 DNS 解需要外部 DNS 服务器。网关只要能实现 DNS 流量的正常 NAT 即可确保 Internal Network模式主机的 DNS 解析。
 - iptables.rules配置如下:<br>
   ![iptables.rules](img/iptablesRules.png) -->
 - 查看`/etc/network/interfaces`发现enp0s9和enp0s10都已经有配置了:<br>
