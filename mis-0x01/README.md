@@ -72,6 +72,16 @@ VBoxManage modifymedium openwrt-18.06.4.vdi --resize 128
   - [x] 设置AP管理员的密码
     - 可以通过`passwd`在虚拟机内设置, 也可以使用`luCI`:<br>
       ![设置/修改密码](img/admin-passwd.jpg)
+- [x] 设置SSID广播和非广播模式
+  - 默认是SSID广播
+  - 设置SSID非广播模式, 修改配置文件`/etc/config/wireless`:<br>
+    ![设置SSID为非广播模式](img/set-ssid-not-broadcast.jpg)<br>
+    配置成功后, 使用`wifi down`和`wifi up`重启。
+  - 关闭SSID广播后, 在AC-Pitfall正常的情况下, 无法扫描到网络:<br>
+    ![无法扫描到AC-Pitfall](img/no-ac-pitfall.jpg)<br>
+    但手机可以正常连接:<br>
+    ![正常连接](img/ac-pitfall-connected.jpg)
+  - 再次开启广播, 可以将配置文件中`option hidden '1'`删除或者置为`0`
 - [x] 配置不同的加密方式
   - 在`Interface Configuration`下的`Wireless Security`中修改加密方式:<br>
     ![配置不同的加密方式](img/ap-encryption.jpg)
@@ -91,3 +101,5 @@ VBoxManage modifymedium openwrt-18.06.4.vdi --resize 128
 - [OpenWrt on VirtualBox HowTo](https://openwrt.org/docs/guide-user/virtualization/virtualbox-vm)
 - [dd(1) - Linux man page](https://linux.die.net/man/1/dd)
 - [Failsafe Mode, Factory Reset, and Recovery Mode](https://openwrt.org/docs/guide-user/troubleshooting/failsafe_and_factory_reset)
+- [DNS and DHCP configuration examples](https://openwrt.org/docs/guide-user/base-system/dhcp_configuration)
+- [Wi-Fi /etc/config/wireless](https://openwrt.org/docs/guide-user/network/wifi/basic)
