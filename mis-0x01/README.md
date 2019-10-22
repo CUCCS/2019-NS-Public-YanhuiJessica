@@ -4,14 +4,14 @@
 ![网络拓扑图](img/topology.jpg)
 ### 获得OpenWrt虚拟硬盘文件
 ```bash
-# 以下命令在wsl中执行
+# 以下命令在wsl(尽量不要使用)中执行
 
 # 下载镜像文件
 wget https://downloads.openwrt.org/releases/18.06.4/targets/x86/64/openwrt-18.06.4-x86-64-combined-squashfs.img.gz # 也可以直接前往官网下载
 # 解压缩
 gzip openwrt-18.06.4-x86-64-combined-squashfs.img.gz
 
-# 直接将解压出来的.img文件转化为.vdi文件会出现VERR_VD_INVALID_SIZE错误, 需要先用dd(主要功能为转换和复制文件)填充
+# 直接将解压出来的.img文件转化为.vdi文件会出现VERR_VD_INVALID_SIZE错误, 根据官方安装教程的解决方案, 需要先用dd(主要功能为转换和复制文件)填充
 dd if=openwrt-18.06.4-x86-64-combined-squashfs.img of=openwrt-18.06.4.img bs=128000 conv=sync
 # bs: 输入/输出块大小为128000字节
 # conv=sync: 将每个输入块填充到128000字节, 不足部分用空(NUL)字符补齐
@@ -67,8 +67,30 @@ VBoxManage modifymedium openwrt-18.06.4.vdi --resize 128
   ```bash
   firstboot && reboot now
   ```
-- [ ] 设置AP的管理员用户名和密码
-  - [ ] 设置AP管理员的用户名
+- [x] 设置AP的管理员用户名和密码
+  - [x] 设置AP管理员的用户名
+    - 添加新用户:
+      ```bash
+      opkg update && opkg install shadow-useradd
+      useradd acroot
+      passwd acroot  #change the password of user acroot
+
+      vi /usr/lib/lua/luci/controller/admin/index.lua
+      # 将page.sysauth = "root" 修改为 page.sysauth = {"root","acroot"}
+
+      vi /etc/config/rpcd
+      # 添加
+      # config login
+      #   option username 'acroot'
+      #   option password '$p$acroot'
+      #   list read '*'
+      #   list write '*'
+
+      reboot
+      ```
+    - 可以成功使用`acroot`登录, 但此时`root`也能登录, 相当于增加了一个`root`类型的用户:<br>
+      ![成功登录记录](img/acroot-success-login.jpg)
+    - 将`/usr/lib/lua/luci/controller/admin/index.lua`中的`page.sysauth`修改为`page.sysauth = "acroot"`并删除`/etc/config/rpcd`中`root`的配置信息后再重启, 无法再使用`root`登录, `acroot`仍能正常登陆
   - [x] 设置AP管理员的密码
     - 可以通过`passwd`在虚拟机内设置, 也可以使用`luCI`:<br>
       ![设置/修改密码](img/admin-passwd.jpg)
@@ -81,16 +103,22 @@ VBoxManage modifymedium openwrt-18.06.4.vdi --resize 128
     ![无法扫描到AC-Pitfall](img/no-ac-pitfall.jpg)<br>
     但手机可以正常连接:<br>
     ![正常连接](img/ac-pitfall-connected.jpg)
+    - Plus: 使用`date -R && iw dev wlan0 scan | grep SSID | sort | uniq && date -R`更好, 更精确的表明中间命令的执行时间
   - 再次开启广播, 可以将配置文件中`option hidden '1'`删除或者置为`0`
+  - 也可以通过`OpenWrt`的图形界面进行管理:<br>
+    ![图形界面设置SSID广播与非广播](img/hide-esside.jpg)
 - [x] 配置不同的加密方式
   - 在`Interface Configuration`下的`Wireless Security`中修改加密方式:<br>
     ![配置不同的加密方式](img/ap-encryption.jpg)
+- [x] 设置MAC地址过滤规则(ACL(访问控制表)地址过滤器)
+  ![设置MAC地址过滤规则](img/MAC-Address-Filter.jpg)<br>
+  可选有: `disable`/`Allow listed only`/`Allow all except listed`
 ## 其它问题
 ### 使用`opkg update`时遇到`wget returned 4`错误
 - `opkg_download: Check your network settings and connectivity.`查看网络连接正常, `ping baidu.com`也可`ping`通, 多次尝试`opkg update`仍然失败。
 - 解决办法: 先使用`wget`下载`opkg update`安装失败的安装包
 ### 新添加的Host-Only网卡无法使用
-- 在[ns-0x01](https://github.com/CUCCS/2019-NS-Public-YanhuiJessica/tree/ns0x01/ns-0x01#gateway-debian)中提到通过使用管理员权限重新安装虚拟机来解决Host-Only网卡无法使用的问题, 显然这个方法不够优秀
+- 在[ns-0x01](https://github.com/CUCCS/2019-NS-Public-YanhuiJessica/tree/ns0x01/ns-0x01#gateway-debian)中提到通过使用管理员权限重新安装虚拟机来解决Host-Only网卡无法使用的问题, 但这个方法并不是解决方法的首选
 - 查看宿主机网络连接, 找到该Host-Only网卡, 对比可以正常使用的Host-Only网卡并无明显差异, 禁用再重新启用, 虚拟机即可正常启动。
 ### 关闭USB口电量限制
 - `设备管理器 -> 通用串行总线控制器 -> USB根集线器(USB 3.0) -> 电源管理`
@@ -103,3 +131,4 @@ VBoxManage modifymedium openwrt-18.06.4.vdi --resize 128
 - [Failsafe Mode, Factory Reset, and Recovery Mode](https://openwrt.org/docs/guide-user/troubleshooting/failsafe_and_factory_reset)
 - [DNS and DHCP configuration examples](https://openwrt.org/docs/guide-user/base-system/dhcp_configuration)
 - [Wi-Fi /etc/config/wireless](https://openwrt.org/docs/guide-user/network/wifi/basic)
+- [SOLVED: LUCI add support user (in addition to root)](https://forum.openwrt.org/t/solved-luci-add-support-user-in-addition-to-root/17402)
