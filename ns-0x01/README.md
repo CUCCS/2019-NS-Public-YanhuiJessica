@@ -94,6 +94,8 @@ NAT service|+|Port forward|+|+|Port forward
   iptables-save -c > iptables.rules #将规则写入iptables.rules
   vi iptables.rules #编辑
   -A POSTROUTING -o enp0s3 -s 172.16.111.0/24 -j MASQUERADE #添加到COMMIT前
+  #-o enp0s3	this rule is valid for packets that leave on the second network interface (-o stands for "output")
+  #-j MASQUERADE	the action that should take place is to 'masquerade' packets, i.e. replacing the sender's address by the router's address.
   iptables-restore < iptables.rules #将规则写回iptables
   ```
 - 配置文件`/etc/network/interfaces`中使用`echo 1 > /proc/sys/net/ipv4/ip_forward`的方式开启IPv4端口转发, 也可以将`/etc/sysctl.conf`文件中`# net.ipv4.ip_forward=1`的注释去除再重启, 效果是一样的。
