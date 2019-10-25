@@ -14,6 +14,7 @@
 对应端口开启监听, `80`端口可以使用`service apache2 start`, `53`端口可以使用`service dnsmasq start`。防火墙处于关闭状态
 - 过滤状态<br>
 对应端口开启监听, 防火墙开启
+- 本次实验中防火墙的开启与关闭使用的是`ufw`，操作较为简单。当然，直接使用`iptables`也是可以的
 ### `TCP connect scan`
 - 代码
     ```py
@@ -173,6 +174,8 @@
             return "Open|Filtered"
         elif(udp_scan_resp.haslayer(ICMP)):
             if(int(udp_scan_resp.getlayer(ICMP).type)==3 and int(udp_scan_resp.getlayer(ICMP).code)==3):
+            # ICMP Type: 3 (Destination unreachable)
+            # ICMP Code: 3 (Port unreachable)
                 return "Closed"
 
     print(udp_scan(dst_ip,dst_port,dst_timeout))
@@ -184,7 +187,8 @@
 - 端口过滤状态<br>
   ![端口过滤扫描结果](img/udp-scan-filtered.jpg)
 ## 实验总结
-### Scapy
+- 每一次扫描测试的抓包结果与课本中的扫描方法原理基本相符
+### `Scapy`
 - `TCP`中的`flags`参数值填写需要置`1`字段名的首字母(顺序任意), 如`[RST, ACK]`对应`AR`, 也可以填写对应的字段值, 如`flags=0x2`:<br>
   ![TCP flags](img/tcp-flags.jpg)
 - ```py
