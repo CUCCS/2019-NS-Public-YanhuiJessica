@@ -1,9 +1,9 @@
 # 基于 Scapy 编写端口扫描器
 ## 实验要求
-- [ ] 完成以下扫描技术的编程实现
+- [x] 完成以下扫描技术的编程实现
   - [x] [`TCP connect scan`](#tcp-connect-scan) / [`TCP stealth scan`](#tcp-stealthsyn-scan)
   - [x] [`TCP Xmas scan`](#tcp-xmas-scan) / [`TCP FIN scan`](#tcp-fin-scan) / [`TCP NULL scan`](#tcp-null-scan)
-  - [ ] [`UDP scan`](#udp-scan)
+  - [x] [`UDP scan`](#udp-scan)
 ## 实验过程
 ### 网络拓扑
 ![网络拓扑图](img/topology.jpg)
@@ -11,7 +11,7 @@
 - 关闭状态<br>
 对应端口没有开启监听, 防火墙没有开启
 - 开启状态<br>
-对应端口开启监听, `80`端口可以使用`service apache2 start`, `53`端口可以使用`service dnsmasq start`, 防火墙处于关闭状态
+对应端口开启监听, `80`端口可以使用`service apache2 start`, `53`端口可以使用`service dnsmasq start`。防火墙处于关闭状态
 - 过滤状态<br>
 对应端口开启监听, 防火墙开启
 ### `TCP connect scan`
@@ -155,40 +155,34 @@
   ![端口过滤扫描结果](img/tcp-null-scan-filtered.jpg)
 ### `UDP scan`
 - 代码
-```py
-#! /usr/bin/python
+    ```py
+    #! /usr/bin/python
 
-import logging
-logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
-from scapy.all import *
+    import logging
+    logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
+    from scapy.all import *
 
-dst_ip = "172.16.111.148"   # ACKAli
-src_port = RandShort()
-dst_port = 53
-dst_timeout = 10
+    dst_ip = "172.16.111.148"   # ACKAli
+    src_port = RandShort()
+    dst_port = 53
+    dst_timeout = 10
 
-def udp_scan(dst_ip,dst_port,dst_timeout,trycnt):
-    udp_scan_resp = sr1(IP(dst=dst_ip)/UDP(dport=dst_port),timeout=dst_timeout)
-    if (trycnt < 3 and str(type(udp_scan_resp))=="<type 'NoneType'>"):
-        return udp_scan(dst_ip,dst_port,dst_timeout,trycnt+1)  #retry
-    elif (str(type(udp_scan_resp))=="<type 'NoneType'>"):
-        return "Open|Filtered"
-    elif (udp_scan_resp.haslayer(UDP)):
-        return "Open"
-    elif(udp_scan_resp.haslayer(ICMP)):
-        if(int(udp_scan_resp.getlayer(ICMP).type)==3 and int(udp_scan_resp.getlayer(ICMP).code)==3):
-            return "Closed"
-        elif(int(udp_scan_resp.getlayer(ICMP).type)==3 and int(udp_scan_resp.getlayer(ICMP).code) in [1,2,9,10,13]):
-            return "Filtered"
+    def udp_scan(dst_ip,dst_port,dst_timeout):
+        udp_scan_resp = sr1(IP(dst=dst_ip)/UDP(dport=dst_port),timeout=dst_timeout)
+        if (str(type(udp_scan_resp))=="<type 'NoneType'>"):
+            return "Open|Filtered"
+        elif(udp_scan_resp.haslayer(ICMP)):
+            if(int(udp_scan_resp.getlayer(ICMP).type)==3 and int(udp_scan_resp.getlayer(ICMP).code)==3):
+                return "Closed"
 
-print(udp_scan(dst_ip,dst_port,dst_timeout,0))
-```
-<!-- - 端口关闭状态<br>
-  ![端口关闭扫描结果]
+    print(udp_scan(dst_ip,dst_port,dst_timeout))
+    ```
+- 端口关闭状态<br>
+  ![端口关闭扫描结果](img/udp-scan-closed.jpg)
 - 端口开启状态<br>
-  ![端口开启扫描结果]
+  ![端口开启扫描结果](img/udp-scan-open.jpg)
 - 端口过滤状态<br>
-  ![端口过滤扫描结果] -->
+  ![端口过滤扫描结果](img/udp-scan-filtered.jpg)
 ## 实验总结
 ### Scapy
 - `TCP`中的`flags`参数值填写需要置`1`字段名的首字母(顺序任意), 如`[RST, ACK]`对应`AR`, 也可以填写对应的字段值, 如`flags=0x2`:<br>
