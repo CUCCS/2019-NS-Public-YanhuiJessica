@@ -155,6 +155,7 @@
 - 端口过滤状态<br>
   ![端口过滤扫描结果](img/tcp-null-scan-filtered.jpg)
 ### `UDP scan`
+- `DNS`运行在`53`端口并且使用`UDP`
 - 代码
     ```py
     #! /usr/bin/python
@@ -183,11 +184,81 @@
 - 端口关闭状态<br>
   ![端口关闭扫描结果](img/udp-scan-closed.jpg)
 - 端口开启状态<br>
-  ![端口开启扫描结果](img/udp-scan-open.jpg)
+  - 网关开启提供`DNS`服务
+    - 判断开启状态需要发送`DNS`询问包
+      ```py
+      # 参照nmap发送的包构造
+      udp_scan_resp = sr1(IP(dst=dst_ip)/UDP(dport=dst_port)/DNS(opcode=2),timeout=dst_timeout)
+      # rd = truncated
+
+      # 添加判断
+      elif (udp_scan_resp.haslayer(UDP)):
+        return "Open"
+      ```
+      ![端口开启扫描结果-DNS回复](img/udp-scan-open-gateway.jpg)
+    - 最后一个`ICMP Destination unreachable`出现的原因: `REKali`的`53`端口未开启监听
+  - 网关未开启<br>
+    ![端口开启扫描结果](img/udp-scan-open.jpg)
 - 端口过滤状态<br>
   ![端口过滤扫描结果](img/udp-scan-filtered.jpg)
+### 使用`nmap`进行扫描
+#### `TCP connect scan`
+- `nmap -sT -p 80 172.16.111.148`
+- 端口关闭状态<br>
+  ![端口关闭扫描结果](img/tcp-connect-scan-nmap-closed.jpg)
+- 端口开启状态<br>
+  ![端口开启扫描结果](img/tcp-connect-scan-nmap-open.jpg)
+- 端口过滤状态<br>
+  ![端口过滤扫描结果](img/tcp-connect-scan-nmap-filtered.jpg)
+#### `TCP stealth scan`
+- `nmap -sS -p 80 172.16.111.148`
+- 端口关闭状态<br>
+  ![端口关闭扫描结果](img/tcp-connect-scan-nmap-closed.jpg)
+- 端口开启状态<br>
+  ![端口开启扫描结果](img/tcp-stealth-scan-nmap-open.jpg)
+- 端口过滤状态<br>
+  ![端口过滤扫描结果](img/tcp-stealth-scan-nmap-filtered.jpg)
+#### `TCP Xmas scan`
+- `nmap -sX -p 80 172.16.111.148`
+- 端口关闭状态<br>
+  ![端口关闭扫描结果](img/tcp-xmas-scan-nmap-closed.jpg)
+- 端口开启状态<br>
+  ![端口开启扫描结果](img/tcp-xmas-scan-nmap-open.jpg)
+- 端口过滤状态<br>
+  ![端口过滤扫描结果](img/tcp-xmas-scan-nmap-filtered.jpg)
+#### `TCP FIN scan`
+- `nmap -sF -p 80 172.16.111.148`
+- 端口关闭状态<br>
+  ![端口关闭扫描结果](img/tcp-fin-scan-nmap-closed.jpg)
+- 端口开启状态<br>
+  ![端口开启扫描结果](img/tcp-fin-scan-nmap-open.jpg)
+- 端口过滤状态<br>
+  ![端口过滤扫描结果](img/tcp-fin-scan-nmap-filtered.jpg)
+#### `TCP NULL scan`
+- `nmap -sN -p 80 172.16.111.148`
+- 端口关闭状态<br>
+  ![端口关闭扫描结果](img/tcp-null-scan-nmap-closed.jpg)
+- 端口开启状态<br>
+  ![端口开启扫描结果](img/tcp-null-scan-nmap-open.jpg)
+- 端口过滤状态<br>
+  ![端口过滤扫描结果](img/tcp-null-scan-nmap-filtered.jpg)
+#### `UDP scan`
+- `nmap -sU -p 53 172.16.111.148`
+- 端口关闭状态<br>
+  ![端口关闭扫描结果](img/udp-scan-nmap-closed.jpg)
+- 端口开启状态<br>
+  - 网关开启提供`DNS`服务<br>
+    ![端口开启扫描结果](img/udp-scan-nmap-open-gateway.jpg)
+  - 网关未开启<br>
+    ![端口开启扫描结果](img/udp-scan-nmap-open.jpg)
+- 端口过滤状态<br>
+  ![端口过滤扫描结果](img/udp-scan-nmap-filtered.jpg)
 ## 实验总结
 - 每一次扫描测试的抓包结果与课本中的扫描方法原理基本相符
+- ```
+  TSval: Timestamp value
+  TSecr: Timestamp echo reply
+  ```
 ### `Scapy`
 - `TCP`中的`flags`参数值填写需要置`1`字段名的首字母(顺序任意), 如`[RST, ACK]`对应`AR`, 也可以填写对应的字段值, 如`flags=0x2`:<br>
   ![TCP flags](img/tcp-flags.jpg)
@@ -215,3 +286,5 @@ ufw status  #查看当前防火墙的状态和现有规则
 - [Usage — Scapy 3 documentation](https://scapy.readthedocs.io/en/latest/usage.html)
 - [Port Scanning using Scapy](https://resources.infosecinstitute.com/port-scanning-using-scapy/)
 - [UFW](https://help.ubuntu.com/community/UFW)
+- [Port Scanning Techniques](https://nmap.org/book/man-port-scanning-techniques.html)
+- [Why is my computer trying to send ICMP type 3 to OpenDNS?](https://unix.stackexchange.com/questions/94187/why-is-my-computer-trying-to-send-icmp-type-3-to-opendns)
