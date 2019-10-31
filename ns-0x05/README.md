@@ -11,7 +11,8 @@
 - 关闭状态<br>
 对应端口没有开启监听, 防火墙没有开启
 - 开启状态<br>
-对应端口开启监听, `80`端口可以使用`service apache2 start`, `53`端口可以使用`service dnsmasq start`。防火墙处于关闭状态
+  - 对应端口开启监听: `apache2`基于`TCP`, 在`80`端口提供服务, 开启`80`端口监听可以使用`service apache2 start`, `DNS`服务基于`UDP`,在`53`端口提供服务, 开启`53`端口监听可以使用`service dnsmasq start`。<br>
+  - 防火墙处于关闭状态
 - 过滤状态<br>
 对应端口开启监听, 防火墙开启
 - 本次实验中防火墙的开启与关闭使用的是`ufw`，操作较为简单。当然，直接使用`iptables`也是可以的
@@ -31,7 +32,8 @@
     st_port = 80
 
     tcp_connect_scan_resp = sr1(IP(dst=dst_ip)/TCP(sport=src_port,dport=dst_port,flags="S"),timeout=10)
-    if(str(type(tcp_connect_scan_resp))=="<type 'NoneType'>"):  #端口没有响应
+    if tcp_connect_scan_resp is None:
+    # if(str(type(tcp_connect_scan_resp))=="<type 'NoneType'>"):  #端口没有响应
         print "Filtered"
     elif(tcp_connect_scan_resp.haslayer(TCP)):
         if(tcp_connect_scan_resp.getlayer(TCP).flags == 0x12):  #Flags: 0x012 (SYN, ACK)
@@ -61,7 +63,7 @@
     dst_port = 80
 
     stealth_scan_resp = sr1(IP(dst=dst_ip)/TCP(sport=src_port,dport=dst_port,flags="S"),timeout=10)
-    if(str(type(stealth_scan_resp))=="<type 'NoneType'>"):
+    if stealth_scan_resp is None:
         print "Filtered"
     elif(stealth_scan_resp.haslayer(TCP)):
         if(stealth_scan_resp.getlayer(TCP).flags == 0x12):
@@ -90,7 +92,7 @@
     dst_port = 80
 
     xmas_scan_resp = sr1(IP(dst=dst_ip)/TCP(dport=dst_port,flags="FPU"),timeout=10) # FIN, PUSH, URG
-    if (str(type(xmas_scan_resp))=="<type 'NoneType'>"):
+    if xmas_scan_resp is None:
         print "Open|Filtered"
     elif(xmas_scan_resp.haslayer(TCP)):
         if(xmas_scan_resp.getlayer(TCP).flags == 0x14):
@@ -116,7 +118,7 @@
     dst_port = 80
 
     fin_scan_resp = sr1(IP(dst=dst_ip)/TCP(dport=dst_port,flags="F"),timeout=10)
-    if (str(type(fin_scan_resp))=="<type 'NoneType'>"):
+    if fin_scan_resp is None:
         print "Open|Filtered"
     elif(fin_scan_resp.haslayer(TCP)):
         if(fin_scan_resp.getlayer(TCP).flags == 0x14):
@@ -142,7 +144,7 @@
     dst_port = 80
 
     null_scan_resp = sr1(IP(dst=dst_ip)/TCP(dport=dst_port,flags=""),timeout=10)
-    if (str(type(null_scan_resp))=="<type 'NoneType'>"):
+    if null_scan_resp is None:
         print "Open|Filtered"
     elif(null_scan_resp.haslayer(TCP)):
         if(null_scan_resp.getlayer(TCP).flags == 0x14):
@@ -171,7 +173,7 @@
 
     def udp_scan(dst_ip,dst_port,dst_timeout):
         udp_scan_resp = sr1(IP(dst=dst_ip)/UDP(dport=dst_port),timeout=dst_timeout)
-        if (str(type(udp_scan_resp))=="<type 'NoneType'>"):
+        if udp_scan_resp is None:
             return "Open|Filtered"
         elif(udp_scan_resp.haslayer(ICMP)):
             if(int(udp_scan_resp.getlayer(ICMP).type)==3 and int(udp_scan_resp.getlayer(ICMP).code)==3):
@@ -253,6 +255,18 @@
     ![端口开启扫描结果](img/udp-scan-nmap-open.jpg)
 - 端口过滤状态<br>
   ![端口过滤扫描结果](img/udp-scan-nmap-filtered.jpg)
+## 其它问题
+### `tcp6`
+- 在查看监听时总能看到`tcp6 0 0 :::53 :::* LISTEN`, 那么`tcp6`是什么？
+  > The protocol used. Here it is TCP over IPv6
+- 那么, 问题来了, 为什么`apache2`运行时, 只有`tcp6`而没有`IPv4`的`tcp`呢？这是由于当`V6ONLY`未启用时, `IPv6 socket`也可以处理`IPv4`, 于是就只监听`IPv6`了。
+  > An IPv6 socket might be able to receive IPv4 packets if V6ONLY is not enabled
+- 可以通过修改`/etc/apache2/ports.conf`让其只监听`tcp`:<br>
+  ```bash
+  # Origin: Listen 80
+  Listen 0.0.0.0:80
+  ```
+
 ## 实验总结
 - 每一次扫描测试的抓包结果与课本中的扫描方法原理基本相符
 - ```
@@ -288,3 +302,4 @@ ufw status  #查看当前防火墙的状态和现有规则
 - [UFW](https://help.ubuntu.com/community/UFW)
 - [Port Scanning Techniques](https://nmap.org/book/man-port-scanning-techniques.html)
 - [Why is my computer trying to send ICMP type 3 to OpenDNS?](https://unix.stackexchange.com/questions/94187/why-is-my-computer-trying-to-send-icmp-type-3-to-opendns)
+- [为什么 netstat 对某些服务只显示了 tcp6 监听端口](https://www.chengweiyang.cn/2017/03/05/why-netstat-not-showup-tcp4-socket/)
