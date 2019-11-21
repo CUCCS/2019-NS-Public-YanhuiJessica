@@ -60,6 +60,7 @@
 - 这道题的题目设计有点令人震惊, 课程的源代码里直接是`if(param3.length() > 4096)`(param3是其中一个输入参数), 只要长度够了就可以获得答案。~~原来这就是缓冲区溢出漏洞啊！~~
 - 第一步, 随意输入字符串:<br>
 <img width="400" alt="随意输入字符串" src="img/buffer-overflows-step-1.jpg"/>
+
 - 第二步, 提交并使用`BurpSuite`拦截, 将拦截的消息发送至`Intruder`。在`Positions`选项卡, 攻击类型选择`Sniper`, 参数只标记`room_no`对应源码中的`param3`
 ![攻击方式选择与参数标记](img/buffer-overflows-step-2.jpg)
   - > Sniper: single payload set, only one value is replaced for all the payload positions in sequence
@@ -70,6 +71,7 @@
 
 - 缓冲区溢出常与`C/C++`相关, 他们不自动检查输入数组的数据是否在数组边界内, 特别是`strcpy`等函数, 超出数组范围的数据将强制覆盖正常的数据并导致运行时错误。黑客还可以通过缓冲区溢出来强制用户执行指定位置的程序。<br>
 <img width="400" alt="溢出覆盖" src="img/return-error.jpg">
+
 - 可以进行边界检查, 但需要额外的代码和处理时间。现代操作系统常用随机化内存布局的方式(这样每次运行时, 函数在内存的位置都无法确定)来抵抗缓冲区溢出攻击, 或者在缓冲区之间留出空间并寻找写入这些区域的操作
 
 ### XXE
@@ -133,6 +135,7 @@
 
 - 将攻击者的`SID`附在链接后面, 受害者点击链接后登录会携带该`SID`: <br>
 <img width="400" alt="添加SID" src="img/add-an-sid.jpg"/>
+
 - 受害者点击邮件链接并正常登录, `POST`请求携带有攻击者提供的`SID`: <br>
 ![携带攻击者提供的SID](img/with-evil-sid.jpg)
 - 攻击者登录, 修改`POST`中的`SID`为受害者当前的`SID`, 即可成功登录
