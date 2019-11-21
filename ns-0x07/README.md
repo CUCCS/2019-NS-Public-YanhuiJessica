@@ -111,10 +111,11 @@
 
 - 浏览器通过`Cookie`来标识用户身份, 未设置`HttpOnly`的网页或不支持`HttpOnly`的浏览器可以通过前端脚本访问和修改`Cookie`从而绕过登录
 - 本题先分别登录`webgoat`和`aspect`两个账户, 可以看到都有一个`AuthCookie`字段, 是用来区分身份的`Cookie`
-  User|AuthCookie
-  -|-
-  webgoat|65432ubphcfx
-  aspect|65432udfqtb
+  
+  | User | AuthCookie |
+  | - | - |
+  | webgoat | 65432ubphcfx |
+  | aspect | 65432udfqtb |
 - 通过观察发现: 前五个数字字段是相同的, 后面的英文长度与用户名长度相对应, 根据用户名中相同的英文字母推断, 可以得出生成规则: 将用户名字符串翻转, 所有字母替换为原字母在字母表上后移一位后所得的字母。因此`alice`对应的`AuthCookie`为`65432fdjmb`
 - 退出登录, 在 开发者工具 -> 控制台 输入`document.cookie="AuthCookie=65432fdjmb"`, 点击`Login`即可成功登录`alice`帐号
 
