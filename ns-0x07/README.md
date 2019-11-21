@@ -3,6 +3,7 @@
 ## 实验要求
 - [x] 每个实验环境完成不少于 5 种不同漏洞类型的漏洞利用练习
 - [x] 使用不同于官方教程中的漏洞利用方法完成目标漏洞利用练习
+- [x] 最大化漏洞利用效果实验
 - [x] ~~编写自动化漏洞利用脚本~~使用`BurpSuite`自动化工具完成指定的训练项目
 - [x] 定位缺陷代码
 - [x] 尝试从源代码层面修复漏洞
@@ -139,6 +140,23 @@
 
 - 设置`HttpOnly`, 禁止客户端访问`Cookie`
 - 对抗会话固定攻击, 可在每次登录后都重置会话ID, 避免攻击者用自己的会话ID劫持会话
+
+### SQL 注入
+
+#### Numeric SQL Injection
+
+- 在原`POST`请求中添加` or true`即可
+- 通过之后, 课程变为参数化查询, 输入数据是参数而不是SQL语句的一部分, 不能再进行SQL注入攻击
+- 不过既然返回结果, 可以显示在界面上, 那么可以试试能否使用`XSS`攻击: <br>
+![使用<h1>标签](img/add-a-h1.jpg)<br>
+  页面成功渲染！<br>
+![成功渲染](img/successful-render.jpg)
+- 然后愉快地弹框: <br>
+![exXSS](img/numeric-sql-ex-xss.jpg)
+
+#### String SQL Injection
+
+- 与`Numeric SQL Injection`是类似的, 只是多了引号, `Smith' or true --`/`Smith' or '1'='1`即可(有很多方法来匹配引号)
 
 ## Juice Shop
 
