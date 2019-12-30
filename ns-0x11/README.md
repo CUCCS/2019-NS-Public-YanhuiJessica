@@ -163,6 +163,15 @@
   ```
 - 当然，良好习惯是使用：`python -m pip`（~~啊，要打好多字~~）
 
+### `jq`的使用
+
+- 安装：`apt update && apt install jq`
+- 看到之前`PR`下的`Comment`，试用了一下`jq`，发现效果有点一言难尽，反而还不如原本直接查看的方式（捂脸）：<br>
+
+  <img src="img/can-say-nothing.jpg" alt="一言难尽的输出" width=400>
+
+- 不过，如果添加了`-c`选项（输出跟原本的格式差不多）也还可以看，毕竟有高亮
+
 ## 实验总结
 
 ### 如何辨别当前目标是一个「蜜罐」
@@ -199,3 +208,4 @@
 - [docker-cowrie](https://github.com/cowrie/docker-cowrie)
 - [pip v10 breaks Debian/Ubuntu pip3 command](https://github.com/pypa/pip/issues/5221#issuecomment-381568428)
 - [docker-exec](https://manpages.debian.org/testing/docker.io/docker-exec.1.en.html)
+- [jq Manual (development version)](https://stedolan.github.io/jq/manual/)
