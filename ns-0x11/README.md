@@ -97,7 +97,7 @@
   - 使用除`root`以外的用户名，任何密码都无法登录
 - 无论是否连接成功，所有的尝试都会被蜜罐记录：<br>
 
-  <img src="img/cowrie-root-ssh.jpg" alt="root用户登录日志记录" width=400> <img src="img/cowrie-admin-ssh.jpg" alt="admin用户登录日志记录" width=450>
+  <img src="img/cowrie-root-ssh.jpg" alt="root用户登录日志记录" width=400> <img src="img/cowrie-admin-ssh.jpg" alt="admin用户登录日志记录" width=430>
 - 连接成功后，一段时间（时间很短，约三分钟）蜜罐会自动将连接断开：<br>
 ![蜜罐自动断开连接](img/connection-closed.jpg)
 - 成功通过 SSH 连接进入~~蜜罐~~远程主机的无知者开始了新的探索
