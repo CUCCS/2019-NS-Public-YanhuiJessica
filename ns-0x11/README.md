@@ -22,7 +22,7 @@
   pip3 install service_identity # dependency
   git clone https://github.com/lanjelot/twisted-honeypots /opt/twisted-honeypots
   cd /opt/twisted-honeypots
-  sudo ./install.sh && services mysql start && ./setup-db.sh
+  sudo ./install.sh && service mysql start && ./setup-db.sh
   ```
 - 由于`twisted-honeypots`是基于`Python3`编写的，需要将`Kali`中默认`Python`版本切换为`Python3`，执行以下命令：
   ```bash
