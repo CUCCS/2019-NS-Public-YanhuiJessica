@@ -166,7 +166,7 @@
 ### `jq`的使用
 
 - 安装：`apt update && apt install jq`
-- 看到之前`PR`下的`Comment`，试用了一下`jq`，发现效果有点一言难尽，反而还不如原本直接查看的方式（捂脸）：<br>
+- 看到之前[师姐`PR`](https://github.com/CUCCS/2018-NS-Public-jckling/pull/15)下的`Comment`，试用了一下`jq`，发现效果有点一言难尽，反而还不如原本直接查看的方式（捂脸）：<br>
 
   <img src="img/can-say-nothing.jpg" alt="一言难尽的输出" width=400>
 
