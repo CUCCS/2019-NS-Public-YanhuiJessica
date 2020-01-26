@@ -102,25 +102,43 @@ function on_add(f: fa_file, args: Files::AnalyzerArgs)
         mkdir(prefix);
         }
 ```
-查看`files.log`，发现该文件提取自网络会话标识（`zeek`根据 IP 五元组（IP地址，源端口，目的IP地址，目的端口和传输层协议 ）计算出的一个会话唯一性散列值）为`CSx6Uv44I6BRvA17nl`的 FTP 会话
-
-fuid|tx_hosts|rx_hosts|conn_uids|source|analyzers|mime_type|extracted|extracted_cutoff|
-|-|-|-|-|-|-|-|-|-
-FHUsSu3rWdP07eRE4l|98.114.205.102|192.150.11.111|CSx6Uv44I6BRvA17nl|FTP_DATA|SHA1,PE,MD5,EXTRACT|application/x-dosexec|extract-1240198114.648099-FTP_DATA-FHUsSu3rWdP07eRE4l|F
-
+查看`files.log`，发现该文件提取自网络会话标识（`zeek`根据 IP 五元组（IP地址，源端口，目的IP地址，目的端口和传输层协议 ）计算出的一个会话唯一性散列值）为`CEir3h3Se4NIFgf77l`的 FTP 会话
+![files 日志记录](img/files-log.jpg)
 由上述信息已经可以得知该PE文件来自IPv4地址为：`98.114.205.102`的主机
 
 另外，根据网络会话标识在`conn.log`中可以找到对应的 IP 五元组信息
-
-uid|id.orig_h|id.orig_p|id.resp_h|id.resp_p|proto
--|-|-|-|-|-
-CSx6Uv44I6BRvA17nl|98.114.205.102|2152|192.150.11.111|1080|tcpftp-data
+![conn 日志记录](img/conn-log.jpg)
 
 ## 实验总结
 
 - 计算机取证技术主要包括：数据获取技术（主要的数据来源包括：存储介质和网络通信数据）、数据分析技术、计算机犯罪分析技术、数据解密技术、证据保管、证据完整性的实现技术以及反取证技术。本次实验主要涉及数据分析技术。
 - 自动化工具真是太棒了！ XD
 - 未加密的通信数据果然还是很危险 (⃔ *`꒳´ * )⃕↝
+
+### Zeek 的一些技巧
+
+- `ftp.log`中默认不会显示捕获的 FTP 登录口令，可以通过在`/usr/local/zeek/share/zeek/site/mytuning.zeek`中增加以下变量重定义来实现：
+  ```bash
+  redef FTP::default_capture_password = T;
+  ```
+  ![密码得以显示](img/show-passwd.jpg)
+- 使用`zeek-cut`更“优雅”的查看日志中关注的数据列
+  ```bash
+  # 查看conn.log中所有可用的“列名”
+  grep ^#fields conn.log | tr '\t' '\n'
+
+  # 按照“列名”输出conn.log中我们关注的一些“列”
+  zeek-cut ts id.orig_h id.orig_p id.resp_h id_resp_p proto < conn.log
+
+  # 将UNIX时间戳格式转换成人类可读的时间（但该方法对于大日志文件处理性能非常低）
+  zeek-cut -d < conn.log
+  ```
+- 查看 Zeek 的超长行日志时的横向滚动技巧
+  ```bash
+  less -S conn.log
+  ```
+- 查看ASCII码对应的“可打印字符”：`echo -n -e '\x09' | hexdump -c`
+- 使用awk打印给定日志文件的第N列数据：`awk -F '\t' '{print $3}' conn.log`
 
 ## 参考资料
 
