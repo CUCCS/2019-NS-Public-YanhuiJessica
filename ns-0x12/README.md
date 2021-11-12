@@ -87,6 +87,7 @@ file extract-1240198114.648099-FTP_DATA-FHUsSu3rWdP07eRE4l
 
 将该文件上传到 [Virustotal](https://virustotal.com) 后，会发现匹配了一份[历史扫描报告](https://www.virustotal.com/gui/file/b14ccb3786af7553f7c251623499a7fe67974dde69d3dffd65733871cddf6b6d/detection)，根据报告中多数杀毒引擎的反馈，得知这是一个已知的后门程序：<br>
 ![扫描报告](img/scan-result.jpg)
+
 至此，就可以基于这个发现进行倒推，寻找入侵线索了。<br>
 阅读`/usr/local/zeek/share/zeek/base/files/extract/main.zeek`的源代码，通过`on_add`函数了解到上述提取文件的文件名的最右一个`-`右侧对应的字符串`FHUsSu3rWdP07eRE4l`是`files.log`中的文件唯一标识。
 ```bash
@@ -104,9 +105,10 @@ function on_add(f: fa_file, args: Files::AnalyzerArgs)
 ```
 查看`files.log`，发现该文件提取自网络会话标识（`zeek`根据 IP 五元组（IP地址，源端口，目的IP地址，目的端口和传输层协议 ）计算出的一个会话唯一性散列值）为`CEir3h3Se4NIFgf77l`的 FTP 会话
 ![files 日志记录](img/files-log.jpg)
+
 由上述信息已经可以得知该PE文件来自IPv4地址为：`98.114.205.102`的主机
 
-另外，根据网络会话标识在`conn.log`中可以找到对应的 IP 五元组信息
+另外，根据网络会话标识在`conn.log`中可以找到对应的 IP 五元组信息<br>
 ![conn 日志记录](img/conn-log.jpg)
 
 ## 实验总结
