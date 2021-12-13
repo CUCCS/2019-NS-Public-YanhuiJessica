@@ -27,7 +27,7 @@
     # Sets logging only for errors that occur during the program execution and not the warnings.
     from scapy.all import *
 
-    dst_ip = "172.16.111.148"   # ACKAli
+    dst_ip = "172.16.111.148"   # ACKali
     src_port = RandShort()  # 生成一个随机数
     st_port = 80
 
@@ -58,7 +58,7 @@
     logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
     from scapy.all import *
 
-    dst_ip = "172.16.111.148"   # ACKAli
+    dst_ip = "172.16.111.148"   # ACKali
     src_port = RandShort()
     dst_port = 80
 
@@ -87,7 +87,7 @@
     logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
     from scapy.all import *
 
-    dst_ip = "172.16.111.148"   # ACKAli
+    dst_ip = "172.16.111.148"   # ACKali
     src_port = RandShort()
     dst_port = 80
 
@@ -113,7 +113,7 @@
     logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
     from scapy.all import *
 
-    dst_ip = "172.16.111.148"   # ACKAli
+    dst_ip = "172.16.111.148"   # ACKali
     src_port = RandShort()
     dst_port = 80
 
@@ -139,7 +139,7 @@
     logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
     from scapy.all import *
 
-    dst_ip = "172.16.111.148"   # ACKAli
+    dst_ip = "172.16.111.148"   # ACKali
     src_port = RandShort()
     dst_port = 80
 
@@ -166,7 +166,7 @@
     logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
     from scapy.all import *
 
-    dst_ip = "172.16.111.148"   # ACKAli
+    dst_ip = "172.16.111.148"   # ACKali
     src_port = RandShort()
     dst_port = 53
     dst_timeout = 10
