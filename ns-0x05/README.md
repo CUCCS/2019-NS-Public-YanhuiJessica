@@ -29,7 +29,7 @@
 
     dst_ip = "172.16.111.148"   # ACKali
     src_port = RandShort()  # 生成一个随机数
-    st_port = 80
+    dst_port = 80
 
     tcp_connect_scan_resp = sr1(IP(dst=dst_ip)/TCP(sport=src_port,dport=dst_port,flags="S"),timeout=10)
     if tcp_connect_scan_resp is None:
@@ -44,7 +44,7 @@
     ```
 - 端口关闭状态<br>
   ![端口关闭扫描结果](img/tcp-connect-scan-closed.jpg)
-- 端口开放状态<br>
+- 端口开放状态（由于内核 TCP/IP 栈并不知道有连接创建，所以当接收到 SYN-ACK 时将返回 RST）<br>
   ![端口开放扫描结果](img/tcp-connect-scan-open.jpg)
 - 端口过滤状态<br>
   ![端口过滤扫描结果](img/tcp-connect-scan-filtered.jpg)
@@ -303,3 +303,4 @@ ufw status  #查看当前防火墙的状态和现有规则
 - [Port Scanning Techniques](https://nmap.org/book/man-port-scanning-techniques.html)
 - [Why is my computer trying to send ICMP type 3 to OpenDNS?](https://unix.stackexchange.com/questions/94187/why-is-my-computer-trying-to-send-icmp-type-3-to-opendns)
 - [为什么 netstat 对某些服务只显示了 tcp6 监听端口](https://www.chengweiyang.cn/2017/03/05/why-netstat-not-showup-tcp4-socket/)
+- [Unwanted RST TCP packet with Scapy - Stack Overflow](https://stackoverflow.com/questions/9058052/unwanted-rst-tcp-packet-with-scapy)
